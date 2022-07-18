@@ -68,8 +68,8 @@ RUN echo en_US.UTF-8 UTF-8 >> /etc/locale.gen \
   && rm -rf /var/lib/apt/lists/* \
   && rm -rf /tmp/*
   
-  RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
-  && apt-get install nodejs
+  RUN curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash -\
+  && apt-get install -y nodejs
   
   RUN npm install -g corepack \
   && corepack enable \
