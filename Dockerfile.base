@@ -16,8 +16,7 @@ RUN echo en_US.UTF-8 UTF-8 >> /etc/locale.gen \
   && apt-get install -y --no-install-recommends gnupg \
   && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys ${GIT_CORE_PPA_KEY} \
   && apt-get update \
-  && curl -fsSL https://deb.nodesource.com/setup_14.x | bash - \
-  && apt-get update \
+  && curl -sL https://deb.nodesource.com/setup_14.x | bash - \
   && apt-get install -y --no-install-recommends \
     gnupg \
     lsb-release \
