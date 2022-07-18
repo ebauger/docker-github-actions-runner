@@ -69,16 +69,4 @@ RUN echo en_US.UTF-8 UTF-8 >> /etc/locale.gen \
   && ( [[ $(lsb_release --codename | cut -f2) == "focal" || $(lsb_release --codename | cut -f2) == "jammy" ||  $(lsb_release --codename | cut -f2) == "sid" ||  $(lsb_release --codename | cut -f2) == "bullseye" ]] && apt-get install -y --no-install-recommends podman buildah skopeo || : ) \
   && ( [[ $(lsb_release --codename | cut -f2) == "jammy" ]] && echo "Ubuntu Jammy is marked as beta. Please see https://github.com/actions/virtual-environments/issues/5490" || : ) \
   && rm -rf /var/lib/apt/lists/* \
-<<<<<<< HEAD
   && rm -rf /tmp/*
-=======
-  && rm -rf /tmp/*
-  
-  RUN curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash -\
-  && apt-get install -y nodejs
-  
-  RUN corepack enable
-  RUN node -v
-  RUN yarn --version
-  RUN pnpm --version
->>>>>>> 0b5af6bc7dd4788b54c9c3af513ff1f5c6234352
