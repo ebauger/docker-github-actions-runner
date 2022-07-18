@@ -17,33 +17,36 @@ RUN echo en_US.UTF-8 UTF-8 >> /etc/locale.gen \
   && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys ${GIT_CORE_PPA_KEY} \
   && apt-get update \
   && apt-get install -y --no-install-recommends \
-    gnupg \
-    lsb-release \
-    curl \
-    tar \
-    unzip \
-    apt-transport-https \
-    ca-certificates \
-    sudo \
-    gpg-agent \
-    software-properties-common \
-    build-essential \
-    zlib1g-dev \
-    zstd \
-    gettext \
-    libcurl4-openssl-dev \
-    inetutils-ping \
-    jq \
-    wget \
-    dirmngr \
-    openssh-client \
-    locales \
-    python3-pip \
-    python3-setuptools \
-    python3 \
-    dumb-init \
-    nodejs \
-    rsync \
+  gnupg \
+  lsb-release \
+  curl \
+  tar \
+  unzip \
+  apt-transport-https \
+  ca-certificates \
+  sudo \
+  gpg-agent \
+  software-properties-common \
+  build-essential \
+  zlib1g-dev \
+  zstd \
+  gettext \
+  libcurl4-openssl-dev \
+  inetutils-ping \
+  jq \
+  wget \
+  dirmngr \
+  openssh-client \
+  locales \
+  python3-pip \
+  python3-setuptools \
+  python3 \
+  dumb-init \
+  rsync \
+  && apt-get update \
+  && curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash -\
+  && apt-get install -y nodejs \
+  && corepack enable \
   && sed -e 's/Defaults.*env_reset/Defaults env_keep = "HTTP_PROXY HTTPS_PROXY NO_PROXY FTP_PROXY http_proxy https_proxy no_proxy ftp_proxy"/' -i /etc/sudoers \
   && echo deb http://ppa.launchpad.net/git-core/ppa/ubuntu $([[ $(grep -E '^ID=' /etc/os-release | sed 's/.*=//g') == "ubuntu" ]] && (grep VERSION_CODENAME /etc/os-release | sed 's/.*=//g') || echo bionic) main>/etc/apt/sources.list.d/git-core.list \
   && apt-get update \
@@ -67,8 +70,3 @@ RUN echo en_US.UTF-8 UTF-8 >> /etc/locale.gen \
   && ( [[ $(lsb_release --codename | cut -f2) == "jammy" ]] && echo "Ubuntu Jammy is marked as beta. Please see https://github.com/actions/virtual-environments/issues/5490" || : ) \
   && rm -rf /var/lib/apt/lists/* \
   && rm -rf /tmp/*
-  
-  RUN curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash -\
-  && apt-get install -y nodejs
-  
-  RUN corepack enable
