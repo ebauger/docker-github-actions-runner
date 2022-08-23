@@ -5,6 +5,7 @@ ARG DUMB_INIT_VERSION="1.2.2"
 ARG GIT_CORE_PPA_KEY="A1715D88E1DF1F24"
 
 ENV DOCKER_COMPOSE_VERSION="1.27.4"
+ENV GIT_LFS_VERSION="3.2.0"
 ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
@@ -43,6 +44,7 @@ RUN echo en_US.UTF-8 UTF-8 >> /etc/locale.gen \
   python3 \
   dumb-init \
   rsync \
+  gosu \
   && apt-get update \
   && curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash -\
   && apt-get install -y nodejs gcc g++ make \
@@ -53,7 +55,8 @@ RUN echo en_US.UTF-8 UTF-8 >> /etc/locale.gen \
   && ( apt-get install -y --no-install-recommends git || apt-get install -t stable -y --no-install-recommends git || apt-get install -y --no-install-recommends git=1:2.33.1-0ppa1~ubuntu18.04.1 git-man=1:2.33.1-0ppa1~ubuntu18.04.1 ) \
   && ( [[ $(apt-cache search -n liblttng-ust0 | awk '{print $1}') == "liblttng-ust0" ]] && apt-get install -y --no-install-recommends liblttng-ust0 || : ) \
   && ( [[ $(apt-cache search -n liblttng-ust1 | awk '{print $1}') == "liblttng-ust1" ]] && apt-get install -y --no-install-recommends liblttng-ust1 || : ) \
-  && ( ( curl "https://awscli.amazonaws.com/awscli-exe-linux-$(uname -m).zip" -o "awscliv2.zip" && unzip awscliv2.zip -d /tmp/ && /tmp/aws/install ) || pip3 install awscli ) \
+  && ( ( curl "https://awscli.amazonaws.com/awscli-exe-linux-$(uname -m).zip" -o "awscliv2.zip" && unzip awscliv2.zip -d /tmp/ && /tmp/aws/install && rm awscliv2.zip) || pip3 install awscli ) \
+  && ( curl -s "https://github.com/git-lfs/git-lfs/releases/download/v${GIT_LFS_VERSION}/git-lfs-linux-$(dpkg --print-architecture)-v${GIT_LFS_VERSION}.tar.gz" -L -o /tmp/lfs.tar.gz && tar -xzf /tmp/lfs.tar.gz -C /tmp && /tmp/git-lfs-${GIT_LFS_VERSION}/install.sh && rm -rf /tmp/lfs.tar.gz  /tmp/git-lfs-${GIT_LFS_VERSION}) \
   # Determine the Distro name (Debian, Ubuntu, etc)
   && distro=$(lsb_release -is | awk '{print tolower($0)}') \
   # Determine the Distro version (bullseye, xenial, etc)
@@ -69,4 +72,9 @@ RUN echo en_US.UTF-8 UTF-8 >> /etc/locale.gen \
   && ( [[ $(lsb_release --codename | cut -f2) == "focal" || $(lsb_release --codename | cut -f2) == "jammy" ||  $(lsb_release --codename | cut -f2) == "sid" ||  $(lsb_release --codename | cut -f2) == "bullseye" ]] && apt-get install -y --no-install-recommends podman buildah skopeo || : ) \
   && ( [[ $(lsb_release --codename | cut -f2) == "jammy" ]] && echo "Ubuntu Jammy is marked as beta. Please see https://github.com/actions/virtual-environments/issues/5490" || : ) \
   && rm -rf /var/lib/apt/lists/* \
-  && rm -rf /tmp/*
+  && rm -rf /tmp/* \
+  && groupadd -g 121 runner \
+  && useradd -mr -d /home/runner -u 1001 -g 121 runner \
+  && usermod -aG sudo runner \
+  && usermod -aG docker runner \
+  && echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers

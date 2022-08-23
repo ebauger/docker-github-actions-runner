@@ -25,6 +25,7 @@ _RUNNER_WORKDIR=${RUNNER_WORKDIR:-/_work}
 _LABELS=${LABELS:-default}
 _RUNNER_GROUP=${RUNNER_GROUP:-Default}
 _GITHUB_HOST=${GITHUB_HOST:="github.com"}
+_RUN_AS_ROOT=${RUN_AS_ROOT:="true"}
 
 # ensure backwards compatibility
 if [[ -z $RUNNER_SCOPE ]]; then
@@ -91,6 +92,10 @@ configure_runner() {
       --replace \
       ${_EPHEMERAL} \
       ${_AUTO_UPDATE}
+
+  [[ ! -d "${_RUNNER_WORKDIR}" ]] && mkdir "${_RUNNER_WORKDIR}"
+  
+  [[ $(id -u) -eq 0 ]] && /usr/bin/chown -R runner ${_RUNNER_WORKDIR} /opt/hostedtoolcache/ /actions-runner || :
 }
 
 
@@ -124,5 +129,11 @@ if [[ ${_DISABLE_AUTOMATIC_DEREGISTRATION} == "false" ]]; then
   trap deregister_runner SIGINT SIGQUIT SIGTERM INT TERM QUIT
 fi
 
-# Container's command (CMD) execution
-"$@"
+# Container's command (CMD) execution as runner user
+
+
+if [[ ${_RUN_AS_ROOT} == "true" ]]; then
+  [[ $(id -u) -eq 0 ]] && ( "$@" ) || ( echo "ERROR: RUN_AS_ROOT env var is set to true but the user has been overriden and is not running as root"; exit 1 )
+else
+  [[ $(id -u) -eq 0 ]] && ( /usr/sbin/gosu runner "$@" ) || ( "$@" )
+fi
